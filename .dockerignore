@@ -1,0 +1,10 @@
+README.md
+REPLIT-PROMPT.md
+.replit
+screenshot-*.png
+*.zip
+deploy
+.git
+.gitignore
+Dockerfile
+.dockerignore
