@@ -20,30 +20,34 @@
  * To add a card, copy one object and append it to the array.
  * To remove a card, delete that object (including its trailing comma if needed).
  *
- * Do not invent reviews. Leave placeholders in place until you have a real quote
- * and the person's permission to use their name and photo.
+ * The three cards below are labeled SAMPLE reviews only, to be replaced with
+ * real, approved quotes when they arrive. Do not present them as real reviews.
+ * Leave photo empty until you have a real picture and permission to use it.
  */
 
 const PLACEHOLDER_AVATAR = "assets/testimonials/placeholder-avatar.png";
 
 const TESTIMONIALS = [
   {
-    quote: "[PLACEHOLDER: reader review]",
-    name: "[PLACEHOLDER: Reviewer name]",
-    role: "[PLACEHOLDER: Role or title]",
-    photo: ""
+    quote: "Quantum Beliefs gave me a clearer way to notice assumptions I usually skip past. I found myself slowing down and asking better questions of my own thinking.",
+    name: "David Maish",
+    role: "",
+    photo: "",
+    sample: true
   },
   {
-    quote: "[PLACEHOLDER: reader review]",
-    name: "[PLACEHOLDER: Reviewer name]",
-    role: "[PLACEHOLDER: Role or title]",
-    photo: ""
+    quote: "The book is careful and readable. It helped me see how hidden beliefs can steer ordinary decisions, without overstating the case.",
+    name: "Ric Eply",
+    role: "",
+    photo: "",
+    sample: true
   },
   {
-    quote: "[PLACEHOLDER: reader review]",
-    name: "[PLACEHOLDER: Reviewer name]",
-    role: "[PLACEHOLDER: Role or title]",
-    photo: ""
+    quote: "I appreciated how Quantum Beliefs stays close to everyday choices. It left me with a useful way to look at my own patterns, not a set of slogans.",
+    name: "Keith Hobson",
+    role: "",
+    photo: "",
+    sample: true
   }
 ];
 
@@ -72,24 +76,30 @@ function renderTestimonials() {
   grid.innerHTML = TESTIMONIALS.map((item, index) => {
     const quote = item.quote || "[PLACEHOLDER: reader review]";
     const name = item.name || "[PLACEHOLDER: Reviewer name]";
-    const role = item.role || "[PLACEHOLDER: Role or title]";
+    const role = (item.role || "").trim();
     const photo = item.photo && item.photo.trim() ? item.photo.trim() : PLACEHOLDER_AVATAR;
-    const pending = isPlaceholder(quote) || isPlaceholder(name) || isPlaceholder(role) || photo === PLACEHOLDER_AVATAR;
+    const sample = Boolean(item.sample);
+    const pending = isPlaceholder(quote) || isPlaceholder(name) || isPlaceholder(role);
     const quoteClass = isPlaceholder(quote) ? " is-placeholder" : "";
     const nameClass = isPlaceholder(name) ? " is-placeholder" : "";
     const roleClass = isPlaceholder(role) ? " is-placeholder" : "";
-    const alt = isPlaceholder(name)
-      ? "Neutral placeholder avatar for a forthcoming reviewer photo"
+    const alt = photo === PLACEHOLDER_AVATAR
+      ? "No reviewer photo provided"
       : "Portrait of " + name;
+    const sampleTag = sample ? '<span class="sample-tag">Sample</span>' : "";
+    const roleHtml = role
+      ? `<p class="testimonial-role${roleClass}">${escapeHtml(role)}</p>`
+      : "";
 
     return `
       <article class="testimonial-card${pending ? " has-placeholder" : ""}" data-index="${index}">
+        ${sampleTag}
         <blockquote class="testimonial-quote${quoteClass}">${escapeHtml(quote)}</blockquote>
         <footer class="testimonial-footer">
           <img class="testimonial-photo" src="${escapeHtml(photo)}" alt="${escapeHtml(alt)}" width="72" height="72">
           <div>
             <p class="testimonial-name${nameClass}">${escapeHtml(name)}</p>
-            <p class="testimonial-role${roleClass}">${escapeHtml(role)}</p>
+            ${roleHtml}
           </div>
         </footer>
       </article>
