@@ -306,7 +306,8 @@ span.btn-disabled {
     linear-gradient(180deg, #070604 0%, #0C0A07 42%, #16120A 100%);
   color: var(--line-on-navy);
   padding: 2.5rem 0 4.5rem;
-  overflow-x: hidden;
+  overflow: hidden;
+  overflow: clip;
 }
 .hero-inner {
   width: min(var(--wrap), calc(100% - 2.5rem));
