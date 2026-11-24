@@ -2,9 +2,12 @@ README.md
 REPLIT-PROMPT.md
 .replit
 screenshot-*.png
+screenshots
+test
 *.zip
 deploy
 .git
 .gitignore
 Dockerfile
 .dockerignore
+MANIFEST.md
