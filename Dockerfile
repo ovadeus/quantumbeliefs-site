@@ -6,6 +6,7 @@ COPY entrypoint.sh /usr/local/bin/qb-entrypoint.sh
 COPY index.html styles.css script.js /usr/share/nginx/html/
 COPY assets/ /usr/share/nginx/html/assets/
 COPY linkedin/ /usr/share/nginx/html/linkedin/
+COPY certification/ /usr/share/nginx/html/certification/
 COPY server/signup-server.js /opt/qb-signup/signup-server.js
 RUN chmod +x /usr/local/bin/qb-entrypoint.sh
 # /data is provided at runtime by a Coolify volume, not copied into the image.

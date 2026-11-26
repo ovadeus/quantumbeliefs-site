@@ -117,6 +117,7 @@
       email: (field(form, "email").value || "").trim(),
       consent: !!(consent && consent.checked),
       landing_path: LANDING_PATH,
+      source: "linkedin",
       referrer: document.referrer || "",
       website: honeypot ? honeypot.value : ""
     };
