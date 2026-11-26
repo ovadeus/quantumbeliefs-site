@@ -1,6 +1,11 @@
 /* Page-specific styles for /linkedin.
    Reuses tokens, type, buttons, and section chrome from /styles.css. */
 
+/* One sans-serif for the whole /linkedin page: the same Inter Tight stack the
+   site already uses for body text. Scoped to .linkedin-page so the homepage
+   and /certification keep their own type. */
+.linkedin-page { --linkedin-sans: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; }
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -23,7 +28,7 @@
   gap: 0.1rem;
 }
 .brand-eyebrow {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--linkedin-sans);
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -31,16 +36,73 @@
   color: var(--muted-on-navy);
 }
 
+/* ----- Hero: text-free art behind the intro, form below it ----- */
 .linkedin-hero {
+  position: relative;
   padding-top: 2.5rem;
-  padding-bottom: 4.5rem;
+  padding-bottom: 0;
+  background: linear-gradient(180deg, #0d162d 0%, #0d162d 58%, #0A0907 100%);
+}
+.linkedin-hero::before {
+  /* Decorative art (no text in the image). Right-anchored so the sphere sits in
+     the right half; the left edge fades into the section background. */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(100%, 92rem);
+  height: 32rem;
+  transform: translateX(-50%);
+  background-image: url("/assets/linkedin-hero-art.jpg");
+  background-image: image-set(
+    url("/assets/linkedin-hero-art.webp") type("image/webp"),
+    url("/assets/linkedin-hero-art.jpg") type("image/jpeg")
+  );
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: auto 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%, #000 90%, transparent 100%),
+                      linear-gradient(180deg, #000 0, #000 80%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 0, #000 22%, #000 90%, transparent 100%),
+              linear-gradient(180deg, #000 0, #000 80%, transparent 100%);
+  mask-composite: intersect;
+  pointer-events: none;
+  z-index: 0;
+}
+.linkedin-hero::after {
+  /* Belief colour band as a full-width divider (decorative, text-free). */
+  content: "";
+  display: block;
+  position: relative;
+  z-index: 1;
+  margin-top: 3.5rem;
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  aspect-ratio: 1424 / 140;
+  background-image: url("/assets/linkedin-hero-band.jpg");
+  background-image: image-set(
+    url("/assets/linkedin-hero-band.webp") type("image/webp"),
+    url("/assets/linkedin-hero-band.jpg") type("image/jpeg")
+  );
+  background-size: 100% 100%;
+  opacity: 0.95;
 }
 .linkedin-hero-inner {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
-  gap: 2.75rem;
+  grid-template-areas:
+    "intro  intro"
+    "more   form";
+  column-gap: 2.75rem;
+  row-gap: 0;
   align-items: start;
 }
+.hero-copy-intro { grid-area: intro; max-width: 30rem; min-height: 27rem; }
+.hero-copy-more  { grid-area: more; }
+.linkedin-hero-inner .signup-card-hero { grid-area: form; }
 .linkedin-hero .hero-headline {
   max-width: 16ch;
   color: var(--line-on-navy);
@@ -58,7 +120,7 @@
   margin: 0.85rem 0 0;
 }
 .hero-tagline {
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-family: var(--linkedin-sans);
   font-style: italic;
   font-size: 1.25rem;
   color: var(--accent-tint);
@@ -184,7 +246,7 @@
 }
 .objectives-list li::before {
   content: counter(obj);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--linkedin-sans);
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--accent-link);
@@ -218,7 +280,7 @@
   border-bottom: 1px solid rgba(201, 196, 184, 0.16);
 }
 .outline-table thead th {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--linkedin-sans);
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -227,7 +289,7 @@
   border-bottom: 1px solid rgba(255, 176, 32, 0.45);
 }
 .outline-table tbody th {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--linkedin-sans);
   font-weight: 600;
   color: var(--accent);
   width: 4.5rem;
@@ -314,7 +376,6 @@
 .linkedin-page .mobile-cta { display: none; }
 
 @media (max-width: 900px) {
-  .linkedin-hero-inner,
   .book-grid {
     grid-template-columns: 1fr;
   }
@@ -358,7 +419,7 @@
   }
   .outline-table td:nth-child(2) { font-size: 1.1rem; }
   .outline-table td:nth-child(3) {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--linkedin-sans);
     font-size: 0.78rem;
     color: var(--accent-tint);
   }
@@ -375,3 +436,48 @@
   }
 }
 
+
+/* ----- /linkedin: single sans-serif everywhere -----
+   styles.css hard-codes Instrument Serif / JetBrains Mono on shared classes
+   (headings, eyebrows, table heads, counters, buttons). Override them here,
+   for this page only. */
+.linkedin-page,
+.linkedin-page *,
+.linkedin-page *::before,
+.linkedin-page *::after {
+  font-family: var(--linkedin-sans) !important;
+}
+.linkedin-page h1,
+.linkedin-page h2,
+.linkedin-page h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.linkedin-page .hero-tagline { font-style: normal; font-weight: 500; }
+.linkedin-page .linkedin-hero .hero-headline { line-height: 1.08; max-width: 15ch; }
+
+/* Readability fix: the hero form card is white, but its labels and consent text
+   inherited the hero's light text colour (near-invisible on white). */
+.linkedin-page .signup-card label,
+.linkedin-page .signup-card .field-consent label {
+  color: var(--ink);
+}
+
+/* Narrower desktops: nudge the art right so the left dials clear the headline. */
+@media (max-width: 1400px) and (min-width: 1101px) {
+  .linkedin-hero::before { background-position: calc(100% + 1.5rem) top; }
+}
+/* Below 1100px there is no room beside the headline: art becomes a banner. */
+@media (max-width: 1100px) {
+  .linkedin-hero { padding-top: 0; }
+  .linkedin-hero::before { height: 15rem; background-position: right top; }
+  .linkedin-hero-inner {
+    grid-template-columns: 1fr;
+    grid-template-areas: "intro" "more" "form";
+    padding-top: 13.5rem;
+  }
+  .hero-copy-intro { min-height: 0; max-width: none; }
+  .hero-copy-more { margin-top: 0.25rem; margin-bottom: 1.75rem; }
+  .linkedin-hero .signup-card-hero { max-width: 34rem; }
+  .linkedin-hero::after { margin-top: 2rem; }
+}
