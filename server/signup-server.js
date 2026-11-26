@@ -2,10 +2,11 @@
 "use strict";
 
 /**
- * Same-origin signup API for /linkedin.
+ * Same-origin signup API for /linkedin and /certification.
  * POST /api/linkedin-signup — validate, append one JSON line to SIGNUP_STORE
  * (default /data/signups.jsonl), then optionally forward to the planned BGP
  * CRM intake if BGP_INTAKE_URL and BGP_INTAKE_SECRET are set.
+ * Each record is tagged source "linkedin" or "certification".
  *
  * The browser response succeeds only after the local write succeeds.
  * Forward success or failure is recorded on the stored line; a forward
@@ -41,10 +42,31 @@ const RATE_MAX = Number(process.env.RATE_LIMIT_MAX || 8);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
-const CONSENT_VERSION = "qb-linkedin-v1";
-const CONSENT_TEXT =
-  "I agree to be contacted by Ovädeus LLC about free access to the Quantum Beliefs Certificate Program and related course information. I can unsubscribe at any time.";
-const SOURCE = "qb-linkedin";
+const SOURCE_CONFIG = {
+  linkedin: {
+    source: "linkedin",
+    landingPath: "/linkedin",
+    consentVersion: "qb-linkedin-v1",
+    consentText:
+      "I agree to be contacted by Ovädeus LLC about free access to the Quantum Beliefs Certificate Program and related course information. I can unsubscribe at any time.",
+  },
+  certification: {
+    source: "certification",
+    landingPath: "/certification",
+    consentVersion: "qb-certification-v1",
+    consentText:
+      "I agree to be contacted by Ovädeus LLC about the Quantum Beliefs Certificate Program and related course information. I can unsubscribe at any time.",
+  },
+};
+
+function resolveSource(payload) {
+  const raw = typeof payload.source === "string" ? payload.source.trim().toLowerCase() : "";
+  if (raw === "linkedin" || raw === "qb-linkedin") return "linkedin";
+  if (raw === "certification") return "certification";
+  const landing = typeof payload.landing_path === "string" ? payload.landing_path.trim() : "";
+  if (landing === "/certification" || landing.startsWith("/certification/")) return "certification";
+  return "linkedin";
+}
 
 const GENERIC_ERROR = "Something went wrong and your request was not saved. Please try again.";
 
@@ -192,13 +214,19 @@ function parseAndValidate(raw) {
     utm[key] = value;
   }
 
+  const sourceKey = resolveSource(payload);
+  const sourceCfg = SOURCE_CONFIG[sourceKey];
+
   return {
     ok: true,
     data: {
       name,
       email,
       consent: true,
-      landing_path: landing_path || "/linkedin",
+      source: sourceCfg.source,
+      consentVersion: sourceCfg.consentVersion,
+      consentText: sourceCfg.consentText,
+      landing_path: landing_path || sourceCfg.landingPath,
       referrer,
       ...utm,
     },
@@ -209,10 +237,10 @@ function intakePayload(data) {
   const body = {
     email: data.email,
     consent: true,
-    consentVersion: CONSENT_VERSION,
-    consentText: CONSENT_TEXT,
+    consentVersion: data.consentVersion,
+    consentText: data.consentText,
     consentAt: data.consentAt,
-    source: SOURCE,
+    source: data.source,
     utm_source: data.utm_source || "",
     utm_medium: data.utm_medium || "",
     utm_campaign: data.utm_campaign || "",
@@ -229,10 +257,10 @@ function buildRecord(data, forward) {
   const record = {
     email: data.email,
     consent: true,
-    consentVersion: CONSENT_VERSION,
-    consentText: CONSENT_TEXT,
+    consentVersion: data.consentVersion,
+    consentText: data.consentText,
     consentAt: data.consentAt,
-    source: SOURCE,
+    source: data.source,
     utm_source: data.utm_source || "",
     utm_medium: data.utm_medium || "",
     utm_campaign: data.utm_campaign || "",
