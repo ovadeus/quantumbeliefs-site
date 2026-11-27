@@ -56,11 +56,31 @@
 
 .hero-art {
   margin: 0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: #101627;
+  /* Soft radial glow behind the (transparent) SVG, matched to David's preview. */
+  background-image:
+    radial-gradient(ellipse 42% 52% at 53% 47%,
+      rgba(110, 160, 255, 0.38) 0%,
+      rgba(30, 79, 216, 0.50) 18%,
+      rgba(30, 79, 216, 0.32) 36%,
+      rgba(30, 79, 216, 0.14) 55%,
+      transparent 74%),
+    radial-gradient(ellipse 70% 80% at 54% 48%,
+      rgba(30, 79, 216, 0.22) 0%,
+      rgba(30, 79, 216, 0.10) 45%,
+      transparent 70%),
+    radial-gradient(ellipse 50% 85% at 88% 45%,
+      rgba(108, 48, 170, 0.32) 0%,
+      rgba(80, 30, 140, 0.14) 42%,
+      transparent 72%);
 }
 .hero-art img {
   display: block;
   width: 100%;
   height: auto;
+  position: relative;
 }
 .hero-col-right .hero-copy-more { padding: 0 1rem 0 2rem; max-width: 40rem; }
 
