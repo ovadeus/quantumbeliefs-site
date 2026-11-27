@@ -40,24 +40,8 @@
 .linkedin-hero {
   position: relative;
   padding-top: 2.5rem;
-  padding-bottom: 0;
+  padding-bottom: 4.5rem; /* same as homepage .hero, so .belief-band sits identically */
   background: linear-gradient(180deg, #0d162d 0%, #0d162d 62%, #0A0907 100%);
-}
-.linkedin-hero::after {
-  /* Belief colour band as a full-width divider (decorative, text-free). */
-  content: "";
-  display: block;
-  margin-top: 3rem;
-  width: min(100%, 92rem);
-  margin-inline: auto;
-  aspect-ratio: 1424 / 140;
-  background-image: url("/assets/linkedin-hero-band.jpg");
-  background-image: image-set(
-    url("/assets/linkedin-hero-band.webp") type("image/webp"),
-    url("/assets/linkedin-hero-band.jpg") type("image/jpeg")
-  );
-  background-size: 100% 100%;
-  opacity: 0.95;
 }
 .linkedin-hero-inner {
   display: grid;
@@ -105,15 +89,9 @@
   min-height: 3rem;
 }
 .signup-card-hero .signup-form .btn {
-  border-radius: 999px;
-  background: #FDCF8F;
-  border-color: #FDCF8F;
-  color: var(--ink);
-  font-weight: 600;
   margin-top: 0.35rem;
+  /* Color comes from styles.css .btn-primary: background/border var(--accent) #FFB020, text var(--ink). */
 }
-.signup-card-hero .signup-form .btn:hover:not(:disabled) { background: #FFD9A3; border-color: #FFD9A3; }
-.signup-card-hero .signup-form .btn:disabled { background: #FDCF8F; border-color: #FDCF8F; color: var(--ink); }
 .signup-card-hero .form-status { margin: 0.6rem 0 0; color: var(--line-on-navy); }
 .signup-card-hero .form-status:empty { display: none; }
 .signup-card-hero .form-status.is-error { color: #FFB3B6; }
@@ -496,5 +474,8 @@
   .hero-col-right .hero-copy-more { padding: 0; }
   .signup-card-hero { max-width: 34rem; }
   .linkedin-hero { padding-top: 1.75rem; }
-  .linkedin-hero::after { margin-top: 2rem; }
+}
+
+@media (max-width: 720px) {
+  .linkedin-hero { padding-bottom: 3.25rem; } /* same as homepage .hero at this breakpoint */
 }
