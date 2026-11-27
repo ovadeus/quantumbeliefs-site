@@ -56,31 +56,41 @@
 
 .hero-art {
   margin: 0;
-  border-radius: 1.5rem;
-  overflow: hidden;
-  background-color: #101627;
-  /* Soft radial glow behind the (transparent) SVG, matched to David's preview. */
-  background-image:
-    radial-gradient(ellipse 42% 52% at 53% 47%,
+  position: relative;
+  overflow: visible;
+  background: none;
+}
+/* Radial glow only: no card fill. The pseudo can extend a little past the
+   image; gradients fade to transparent before the wrapper/pseudo edges so
+   nothing reads as a rectangle. */
+.hero-art::before {
+  content: "";
+  position: absolute;
+  inset: -14% -12%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 50% at 53% 47%,
       rgba(110, 160, 255, 0.38) 0%,
-      rgba(30, 79, 216, 0.50) 18%,
-      rgba(30, 79, 216, 0.32) 36%,
-      rgba(30, 79, 216, 0.14) 55%,
-      transparent 74%),
-    radial-gradient(ellipse 70% 80% at 54% 48%,
-      rgba(30, 79, 216, 0.22) 0%,
-      rgba(30, 79, 216, 0.10) 45%,
-      transparent 70%),
-    radial-gradient(ellipse 50% 85% at 88% 45%,
-      rgba(108, 48, 170, 0.32) 0%,
-      rgba(80, 30, 140, 0.14) 42%,
-      transparent 72%);
+      rgba(30, 79, 216, 0.50) 16%,
+      rgba(30, 79, 216, 0.28) 34%,
+      rgba(30, 79, 216, 0.10) 50%,
+      transparent 66%),
+    radial-gradient(ellipse 58% 66% at 54% 48%,
+      rgba(30, 79, 216, 0.20) 0%,
+      rgba(30, 79, 216, 0.08) 38%,
+      transparent 60%),
+    radial-gradient(ellipse 34% 56% at 82% 45%,
+      rgba(108, 48, 170, 0.28) 0%,
+      rgba(80, 30, 140, 0.10) 38%,
+      transparent 62%);
 }
 .hero-art img {
   display: block;
   width: 100%;
   height: auto;
   position: relative;
+  z-index: 1;
 }
 .hero-col-right .hero-copy-more { padding: 0 1rem 0 2rem; max-width: 40rem; }
 
