@@ -1,236 +1,177 @@
-/* QuantumBeliefs.com/certification form handler.
-   Validates on the client, then POSTs to the same-origin signup API.
-   Never includes API keys or other secrets in this file. */
+/* QuantumBeliefs.com/certification (paid enrollment page).
+   Vanilla JS, no dependencies, no secrets.
+   - Counts down to the founding-price deadline using real clock time
+     (never a stored or restarting counter).
+   - After the deadline: hides the countdown and the strike-through, shows the regular price.
+   - Points every "Purchase now" button at CHECKOUT_URL. */
 (function () {
   "use strict";
 
-  var UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
-  var STORAGE_KEY = "qbcp_certification_utm";
-  var LANDING_PATH = "/certification";
-  var FORM_ENDPOINT = "/api/linkedin-signup";
-  var GENERIC_ERROR = "Something went wrong and your request was not saved. Please try again.";
+  /* ================= CONFIG: edit only this block ================= */
 
-  function linkedInReferrer(referrer) {
-    try {
-      var host = new URL(referrer).hostname.replace(/^www\./, "").toLowerCase();
-      return host === "linkedin.com" || host.endsWith(".linkedin.com") || host === "lnkd.in";
-    } catch (e) {
+  /* Where "Purchase now" goes. Sungazer course site (set up by the BGP agent):
+     public enrollment page for the Quantum Beliefs Certificate Program.
+     Replace with the direct Founding $97 checkout/payment link if there is one. */
+  var CHECKOUT_URL = "https://quantumbeliefs.sungazer.com/enroll/quantum-beliefs";
+
+  /* Real deadline: 2027-01-01 00:00 America/New_York (EST, UTC-5). */
+  var DEADLINE_ISO = "2027-01-01T00:00:00-05:00";
+
+  /* Prices shown on the page. Regular $197.00 matches Stripe/Sungazer's Regular offer.
+     Sale price is $97.00 per David; the Sungazer Founding offer had a different amount when checked
+     (2026-11-26), so confirm the offer amount matches before launch. */
+  var FOUNDING_PRICE = "$97.00";
+  var REGULAR_PRICE = "$197.00";
+
+  /* Optional signed-paperback add-on (checkbox in every CTA card).
+     When checked, Purchase now goes to CHECKOUT_URL with ?ADDON_PARAM=ADDON_VALUE.
+     Sungazer's enroll route reads ?paperback=1 and adds the signed paperback
+     (US shipping addresses only) to the Stripe Checkout session.
+     The add-on price below is the public paperback price from Sungazer's
+     /api/public/courses/quantum-beliefs/offer (the paperback price is $19.99). */
+  var ADDON_PARAM = "paperback";
+  var ADDON_VALUE = "1";
+  var ADDON_PRICE = "$19.99";
+
+  /* ================================================================ */
+
+  var DEADLINE_MS = Date.parse(DEADLINE_ISO);
+  var clockOffset = 0; // server time minus device time, once known
+  var timerId = null;
+  var state = "pending";
+
+  var els = {
+    box: document.getElementById("countdown"),
+    d: document.getElementById("cd-days"),
+    h: document.getElementById("cd-hours"),
+    m: document.getElementById("cd-minutes"),
+    s: document.getElementById("cd-seconds")
+  };
+
+  function now() {
+    return Date.now() + clockOffset;
+  }
+
+  function pad(n) {
+    return n < 10 ? "0" + n : String(n);
+  }
+
+  function setText(el, value) {
+    if (el && el.textContent !== value) el.textContent = value;
+  }
+
+  function applyPrices() {
+    var map = { founding: FOUNDING_PRICE, regular: REGULAR_PRICE };
+    Array.prototype.forEach.call(document.querySelectorAll("[data-price]"), function (el) {
+      var v = map[el.getAttribute("data-price")];
+      if (v) el.textContent = v;
+    });
+  }
+
+  function addonBoxes() {
+    return Array.prototype.slice.call(document.querySelectorAll(".js-addon"));
+  }
+
+  function checkoutUrl() {
+    var wanted = addonBoxes().some(function (box) { return box.checked; });
+    if (!wanted) return CHECKOUT_URL;
+    var url = new URL(CHECKOUT_URL);
+    url.searchParams.set(ADDON_PARAM, ADDON_VALUE);
+    return url.toString();
+  }
+
+  function applyCheckoutUrl() {
+    var href = checkoutUrl();
+    Array.prototype.forEach.call(document.querySelectorAll(".js-checkout"), function (a) {
+      a.setAttribute("href", href);
+    });
+  }
+
+  // Keep every card's checkbox in the same state and update all Purchase now links.
+  function initAddon() {
+    Array.prototype.forEach.call(document.querySelectorAll(".addon-price"), function (el) {
+      el.textContent = "+" + ADDON_PRICE;
+    });
+    var boxes = addonBoxes();
+    boxes.forEach(function (box) {
+      box.addEventListener("change", function () {
+        boxes.forEach(function (other) { other.checked = box.checked; });
+        applyCheckoutUrl();
+      });
+    });
+    // Browsers can restore a checked box on back/forward navigation.
+    window.addEventListener("pageshow", function () {
+      var anyChecked = boxes.some(function (box) { return box.checked; });
+      boxes.forEach(function (box) { box.checked = anyChecked; });
+      applyCheckoutUrl();
+    });
+  }
+
+  function setState(next) {
+    if (state === next) return;
+    state = next;
+    Array.prototype.forEach.call(document.querySelectorAll(".price-block"), function (b) {
+      b.setAttribute("data-offer", next);
+    });
+    if (els.box) els.box.hidden = next !== "founding";
+  }
+
+  function render() {
+    var remaining = DEADLINE_MS - now();
+    if (isNaN(remaining) || remaining <= 0) {
+      // Deadline passed (or config broken): never show a countdown or the sale price.
+      setState("regular");
+      stop();
       return false;
     }
-  }
-
-  function readStoredUtms() {
-    try {
-      var raw = sessionStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      return {};
-    }
-  }
-
-  function persistUtms(utm) {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(utm));
-    } catch (e) {
-      // sessionStorage may be unavailable; hidden fields still hold values for this page load.
-    }
-  }
-
-  function readUtms() {
-    var params = new URLSearchParams(window.location.search);
-    var stored = readStoredUtms();
-    var utm = {};
-    UTM_KEYS.forEach(function (key) {
-      var fromQuery = params.get(key);
-      if (fromQuery !== null && fromQuery !== "") {
-        utm[key] = fromQuery;
-      } else if (stored[key]) {
-        utm[key] = stored[key];
-      } else {
-        utm[key] = "";
-      }
-    });
-    // Do not overwrite a present utm_source with a default.
-    if (!utm.utm_source) {
-      utm.utm_source = linkedInReferrer(document.referrer) ? "linkedin" : "direct";
-    }
-    persistUtms(utm);
-    return utm;
-  }
-
-  function applyUtmsToForm(form, utm) {
-    UTM_KEYS.forEach(function (key) {
-      if (form.elements[key]) form.elements[key].value = utm[key] || "";
-    });
-    if (form.elements.landing_path) form.elements.landing_path.value = LANDING_PATH;
-  }
-
-  function isValidEmail(value) {
-    var v = (value || "").trim();
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  }
-
-  function field(form, name) {
-    return form.elements[name];
-  }
-
-  function setConsentEnabled(form) {
-    var consent = field(form, "consent");
-    var submit = form.querySelector(".js-submit");
-    if (submit) submit.disabled = !(consent && consent.checked);
-  }
-
-  function setPending(form, pending) {
-    var submit = form.querySelector(".js-submit");
-    if (!submit) return;
-    submit.setAttribute("aria-busy", pending ? "true" : "false");
-    if (pending) {
-      submit.disabled = true;
-    } else {
-      setConsentEnabled(form);
-    }
-  }
-
-  function clearStatus(form) {
-    var status = form.querySelector(".js-form-status");
-    if (!status) return;
-    status.textContent = "";
-    status.classList.remove("is-error");
-  }
-
-  function showError(form, message, invalidEl) {
-    var status = form.querySelector(".js-form-status");
-    if (status) {
-      status.textContent = message;
-      status.classList.add("is-error");
-    }
-    var email = field(form, "email");
-    if (email) email.classList.toggle("is-invalid", invalidEl === email);
-    if (invalidEl && typeof invalidEl.focus === "function") invalidEl.focus();
-  }
-
-  function collectPayload(form) {
-    var consent = field(form, "consent");
-    var honeypot = field(form, "website");
-    var payload = {
-      name: (field(form, "name").value || "").trim(),
-      email: (field(form, "email").value || "").trim(),
-      consent: !!(consent && consent.checked),
-      landing_path: LANDING_PATH,
-      source: "certification",
-      referrer: document.referrer || "",
-      website: honeypot ? honeypot.value : ""
-    };
-    UTM_KEYS.forEach(function (key) {
-      payload[key] = field(form, key) ? field(form, key).value : "";
-    });
-    return payload;
-  }
-
-  function showThanks() {
-    document.querySelectorAll(".js-form-panel").forEach(function (panel) {
-      var wrap = panel.querySelector(".js-form-wrap");
-      var thanks = panel.querySelector(".js-thanks");
-      if (wrap) wrap.hidden = true;
-      if (thanks) thanks.hidden = false;
-    });
-    var heading = document.querySelector(".js-thanks:not([hidden]) .js-thanks-heading");
-    if (heading) heading.focus();
-    if (history.replaceState) {
-      var url = new URL(window.location.href);
-      url.hash = "thanks";
-      history.replaceState(null, "", url.pathname + url.search + "#thanks");
-    }
-  }
-
-  function syncField(sourceForm, otherForms, name) {
-    var src = field(sourceForm, name);
-    if (!src) return;
-    otherForms.forEach(function (form) {
-      if (form === sourceForm) return;
-      var dest = field(form, name);
-      if (!dest) return;
-      if (src.type === "checkbox") {
-        dest.checked = src.checked;
-        setConsentEnabled(form);
-      } else {
-        dest.value = src.value;
-      }
-    });
-  }
-
-  function validate(form) {
-    var email = field(form, "email");
-    var consent = field(form, "consent");
-    clearStatus(form);
-    if (email) email.classList.remove("is-invalid");
-
-    if (!isValidEmail(email && email.value)) {
-      showError(form, "Please enter a valid email address.", email);
-      return false;
-    }
-    if (!consent || !consent.checked) {
-      showError(form, "Please confirm the consent box before continuing.", consent);
-      return false;
-    }
+    var total = Math.floor(remaining / 1000);
+    setText(els.d, pad(Math.floor(total / 86400)));
+    setText(els.h, pad(Math.floor((total % 86400) / 3600)));
+    setText(els.m, pad(Math.floor((total % 3600) / 60)));
+    setText(els.s, pad(total % 60));
+    setState("founding");
     return true;
   }
 
-  function onSubmit(event) {
-    event.preventDefault();
-    var form = event.currentTarget;
-    if (!validate(form)) return;
+  function stop() {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+  }
 
-    var payload = collectPayload(form);
-    setPending(form, true);
+  function schedule() {
+    stop();
+    if (!render()) return;
+    // Tick on the next whole second of the (corrected) clock.
+    var wait = 1000 - (now() % 1000);
+    timerId = setTimeout(schedule, wait + 5);
+  }
 
-    fetch(FORM_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(function (response) {
-        if (!response.ok) throw new Error("save-failed");
-        return response.json().catch(function () { return {}; });
+  // Browsers throttle timers in background tabs; recompute from the clock on return.
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && state !== "regular") schedule();
+  });
+
+  // Correct for a wrong device clock using the server's Date header (best effort).
+  function syncWithServer() {
+    if (!window.fetch) return;
+    var sent = Date.now();
+    fetch(window.location.pathname, { method: "HEAD", cache: "no-store" })
+      .then(function (res) {
+        var header = res.headers.get("Date");
+        var server = header ? Date.parse(header) : NaN;
+        if (isNaN(server)) return;
+        var received = Date.now();
+        clockOffset = server + (received - sent) / 2 - received;
+        if (state !== "regular" || DEADLINE_MS - now() > 0) schedule();
       })
-      .then(function (body) {
-        if (body && body.ok === false) throw new Error("save-failed");
-        showThanks();
-      })
-      .catch(function () {
-        showError(form, GENERIC_ERROR, field(form, "email"));
-        setPending(form, false);
-      });
+      .catch(function () { /* keep device clock */ });
   }
 
-  function init() {
-    var utm = readUtms();
-    var forms = Array.prototype.slice.call(document.querySelectorAll(".js-signup-form"));
-    forms.forEach(function (form) {
-      applyUtmsToForm(form, utm);
-      setConsentEnabled(form);
-      form.addEventListener("submit", onSubmit);
-      var consent = field(form, "consent");
-      if (consent) {
-        consent.addEventListener("change", function () {
-          setConsentEnabled(form);
-          syncField(form, forms, "consent");
-        });
-      }
-      ["name", "email"].forEach(function (name) {
-        var el = field(form, name);
-        if (!el) return;
-        el.addEventListener("input", function () {
-          syncField(form, forms, name);
-          if (name === "email") el.classList.remove("is-invalid");
-        });
-      });
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  initAddon();
+  applyCheckoutUrl();
+  applyPrices();
+  schedule();
+  syncWithServer();
 })();

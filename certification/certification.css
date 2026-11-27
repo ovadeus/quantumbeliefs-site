@@ -1,0 +1,98 @@
+/* /certification (paid): extras on top of /styles.css and /linkedin/linkedin.css.
+   Same design system as /linkedin; this file only adds the header countdown,
+   the price block, and the CTA cards that replace the sign-up form. */
+
+/* ----- Header: brand left, countdown right ----- */
+.cert-header .header-inner { justify-content: space-between; flex-wrap: wrap; row-gap: 0.4rem; padding-block: 0.35rem; }
+.countdown { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; margin-left: auto; }
+.countdown[hidden] { display: none; }
+.countdown-label {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-on-navy);
+  text-wrap: balance;
+}
+.countdown-clock { margin: 0; display: flex; gap: 0.85rem; font-variant-numeric: tabular-nums; }
+.cd-unit { display: flex; flex-direction: column; align-items: center; min-width: 2.6rem; line-height: 1.05; }
+.cd-num { font-size: 1.35rem; font-weight: 650; color: var(--accent-tint); }
+.cd-lab { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-on-navy); }
+
+/* ----- Price block (shared by all three CTA cards) -----
+   data-offer is set by certification.js: pending (default) | founding | regular */
+.price-block .when-founding,
+.price-block .when-regular,
+.price-block .when-pending { display: none; }
+.price-block[data-offer="pending"] .when-pending,
+.price-block[data-offer="founding"] .when-founding,
+.price-block[data-offer="regular"] .when-regular { display: block; }
+.price-line { margin: 0; display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+.price-now { font-size: 2.9rem; font-weight: 650; line-height: 1; letter-spacing: -0.02em; color: var(--line-on-navy); }
+.price-was { font-size: 1.45rem; font-weight: 500; color: var(--muted-on-navy); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--accent-hot); }
+.price-note { margin: 0.5rem 0 0; font-size: 0.95rem; font-weight: 600; color: var(--accent-tint); }
+.price-block .price-note.when-pending { color: var(--line-on-navy); font-weight: 500; }
+
+/* ----- CTA card (slate, same as the old form card) ----- */
+.cta-card .price-block { margin-bottom: 0.9rem; }
+.linkedin-page .cta-card .cta-value { margin: 0 0 1.1rem; color: var(--line-on-navy); }
+.cta-card .btn { width: 100%; min-height: 3rem; justify-content: center; text-align: center; }
+.cta-noscript { margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--line-on-navy); }
+.cta-noscript a { color: var(--accent-tint); }
+
+.cta-card-band,
+.cta-card-final {
+  background: rgba(74, 81, 96, 0.94);
+  border: 1px solid rgba(236, 234, 228, 0.18);
+  border-radius: 0.65rem;
+  padding: 1.5rem 1.6rem 1.6rem;
+  color: var(--line-on-navy);
+  width: min(26rem, 100%);
+  margin: 1.5rem auto 0;
+  text-align: left;
+}
+.enroll-inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.enroll-inner .section-lead { margin-inline: auto; }
+.cert-final .final-lead { margin-bottom: 0; }
+.cert-final .cta-card-final { margin-top: 1.6rem; }
+
+/* ----- Signed-paperback add-on checkbox ----- */
+.addon-option {
+  display: grid;
+  grid-template-columns: 1.3rem minmax(0, 1fr);
+  column-gap: 0.7rem;
+  align-items: start;
+  margin: 0 0 1.1rem;
+}
+.addon-option input[type="checkbox"] {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.addon-option input[type="checkbox"]:focus-visible {
+  outline: 3px solid var(--accent-tint);
+  outline-offset: 3px;
+}
+.linkedin-page .cta-card .addon-option label {
+  color: var(--line-on-navy);
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.addon-note { grid-column: 2; margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--muted-on-navy); }
+.addon-price { font-weight: 650; color: var(--accent-tint); white-space: nowrap; }
+
+/* ----- Small screens: countdown drops under the brand, still right-aligned ----- */
+@media (max-width: 720px) {
+  .cert-header .header-inner { padding-block: 0.5rem; }
+  .countdown { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; margin-left: 0; gap: 0.6rem; }
+  .countdown-label { max-width: 7.5rem; text-align: left; }
+  .countdown-clock { gap: 0.55rem; }
+  .cd-unit { min-width: 2.2rem; }
+  .cd-num { font-size: 1.15rem; }
+  .cd-lab { font-size: 0.55rem; }
+  .price-now { font-size: 2.5rem; }
+}
