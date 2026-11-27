@@ -92,7 +92,29 @@
   position: relative;
   z-index: 1;
 }
-.hero-col-right .hero-copy-more { padding: 0 1rem 0 2rem; max-width: 40rem; }
+/* right padding = gap between the SVG edge and the right qubit stack (~90/6182 of the art width), so text ends where the icons end */
+.hero-col-right .hero-copy-more { padding: 0 1.45% 0 2rem; max-width: 40rem; }
+.hero-copy-more .hero-tagline { margin: 0 0 0.9rem; }
+.hero-audience {
+  list-style: none;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.hero-audience li { margin: 0; line-height: 1.4; }
+.hero-audience .aud-field {
+  display: block;
+  color: #8FB4FF; /* light blue from the site's belief palette */
+  font-weight: 650;
+  font-size: 0.98rem;
+}
+.hero-audience .aud-benefit {
+  display: block;
+  color: var(--line-on-navy);
+  font-size: 0.95rem;
+}
+.hero-copy-more .hero-support { margin-top: 1rem; max-width: none; }
 
 /* Form card: translucent slate on the navy hero, light text, cream fields. */
 .signup-card-hero {
@@ -105,7 +127,6 @@
 .signup-card-hero .signup-form .field { margin-bottom: 0.9rem; }
 .signup-card-hero .signup-form label,
 .linkedin-page .signup-card.signup-card-hero label { color: var(--line-on-navy); }
-.signup-card-hero .signup-form .optional { color: var(--muted-on-navy); }
 .signup-card-hero .signup-form input[type="text"],
 .signup-card-hero .signup-form input[type="email"] {
   background: #F1EEE5;
@@ -138,7 +159,6 @@
   font-size: 1.125rem;
   margin: 1.15rem 0 0;
 }
-.hero-byline,
 .hero-tagline,
 .linkedin-hero .hero-support {
   color: var(--muted-on-navy);
@@ -171,11 +191,6 @@
   color: var(--muted-on-paper);
 }
 .signup-form .field { margin-bottom: 0.95rem; }
-.signup-form .optional {
-  font-weight: 500;
-  color: var(--muted-on-paper);
-  font-size: 0.82rem;
-}
 .signup-form input[type="text"],
 .signup-form input[type="email"] {
   width: 100%;
@@ -502,3 +517,17 @@
 @media (max-width: 720px) {
   .linkedin-hero { padding-bottom: 3.25rem; } /* same as homepage .hero at this breakpoint */
 }
+
+/* No single-word widows: balance headings, prettify body text. Non-breaking
+   spaces between the last two words in index.html cover browsers without text-wrap. */
+.linkedin-page h1,
+.linkedin-page h2,
+.linkedin-page h3,
+.linkedin-page h4,
+.linkedin-page .hero-tagline { text-wrap: balance; }
+.linkedin-page p,
+.linkedin-page li,
+.linkedin-page td,
+.linkedin-page th,
+.linkedin-page dd,
+.linkedin-page .aud-benefit { text-wrap: pretty; }
