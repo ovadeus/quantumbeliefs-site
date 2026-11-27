@@ -25,7 +25,7 @@
   <link rel="icon" href="/assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/assets/logo-bgp.png">
   <link rel="stylesheet" href="/styles.css?v=20261124-linkedin-launch">
-  <link rel="stylesheet" href="/linkedin/linkedin.css?v=20261126-hero-sans">
+  <link rel="stylesheet" href="/linkedin/linkedin.css?v=20261126-hero-v2">
 </head>
 <body class="linkedin-page">
   <a class="skip-link" href="#signup">Skip to sign-up form</a>
@@ -46,19 +46,15 @@
   <main id="main">
     <section class="hero linkedin-hero" aria-labelledby="hero-headline">
       <div class="wrap linkedin-hero-inner">
+        <div class="hero-col hero-col-left">
         <div class="hero-copy hero-copy-intro">
           <p class="kicker">Quantum Beliefs Certificate Program</p>
-          <h1 id="hero-headline" class="hero-headline">Request free access to the Quantum Beliefs course</h1>
+          <h1 id="hero-headline" class="hero-headline"><span class="h1-line">Request free access</span> <span class="h1-line">to the Quantum Beliefs</span> <span class="h1-line">online course</span></h1>
           <p class="hero-lead">Enter your email to request free access to the Quantum Beliefs Certificate Program. This self-paced course teaches the framework from <cite>Quantum Beliefs</cite> by David Edwin Meyers: how a belief forms, how it’s held, and how it can be read with care.</p>
         </div>
-        <div class="hero-copy hero-copy-more">
-          <p class="hero-byline">Taught by David Edwin Meyers. The program is owned, sold, and issued by Ovädeus LLC.</p>
-          <p class="hero-tagline">The hidden code that shapes every decision you make.</p>
-          <p class="hero-support">Free access includes the full Quantum Beliefs Certificate Program: all ten modules, the final exam, and the capstone. About 23 hours. Go at your own pace.</p>
-        </div>
         <div class="signup-card signup-card-hero js-form-panel" id="signup">
-          <h2 class="form-card-title">Request free access</h2>
-          <p class="form-card-lead">Leave your email and we’ll follow up with next steps for free access. Name is optional.</p>
+          <h2 class="form-card-title visually-hidden">Request free access</h2>
+          <p class="form-card-lead visually-hidden">Leave your email and we’ll follow up with next steps for free access. Name is optional.</p>
           <!-- FORM: compact hero instance. Same list as the full form below. -->
           <div class="js-form-wrap">
             <!-- form markup injected below as include-like block: hero -->
@@ -72,9 +68,9 @@
               <label for="email-hero">Email address</label>
               <input id="email-hero" name="email" type="email" autocomplete="email" required inputmode="email" spellcheck="false">
             </div>
-            <div class="field field-consent">
-              <input id="consent-hero" name="consent" type="checkbox" value="yes" required>
-              <label for="consent-hero">I agree to be contacted by Ovädeus LLC about free access to the Quantum Beliefs Certificate Program and related course information. I can unsubscribe at any time.</label>
+            <!-- Consent is implicit in submitting this form; linkedin.js and the API still receive consent=true. -->
+            <div class="field-consent-implicit" hidden>
+              <input id="consent-hero" name="consent" type="checkbox" value="yes" checked required tabindex="-1">
             </div>
             <div class="hp" aria-hidden="true">
               <label for="website-hero">Company</label>
@@ -103,6 +99,20 @@
             </div>
 
           </div>
+        </div>
+        </div>
+        <div class="hero-col hero-col-right">
+        <figure class="hero-art">
+          <picture>
+            <source srcset="/assets/linkedin-hero-sphere.webp" type="image/webp">
+            <img src="/assets/linkedin-hero-sphere.jpg" width="954" height="520" alt="Glowing wireframe sphere representing the cognitive qubit, surrounded by three small dials for amplitude, phase, and coherence.">
+          </picture>
+        </figure>
+        <div class="hero-copy hero-copy-more">
+          <p class="hero-byline">Taught by David Edwin Meyers. The program is owned, sold, and issued by Ovädeus LLC.</p>
+          <p class="hero-tagline">The hidden code that shapes every decision you make.</p>
+          <p class="hero-support">Free access includes the full Quantum Beliefs Certificate Program: all ten modules, the final exam, and the capstone. About 23 hours. Go at your own pace.</p>
+        </div>
         </div>
       </div>
     </section>
@@ -253,9 +263,9 @@
               <label for="email-full">Email address</label>
               <input id="email-full" name="email" type="email" autocomplete="email" required inputmode="email" spellcheck="false">
             </div>
-            <div class="field field-consent">
-              <input id="consent-full" name="consent" type="checkbox" value="yes" required>
-              <label for="consent-full">I agree to be contacted by Ovädeus LLC about free access to the Quantum Beliefs Certificate Program and related course information. I can unsubscribe at any time.</label>
+            <!-- Consent is implicit in submitting this form; linkedin.js and the API still receive consent=true. -->
+            <div class="field-consent-implicit" hidden>
+              <input id="consent-full" name="consent" type="checkbox" value="yes" checked required tabindex="-1">
             </div>
             <div class="hp" aria-hidden="true">
               <label for="website-full">Company</label>
