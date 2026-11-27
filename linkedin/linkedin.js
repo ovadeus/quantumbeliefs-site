@@ -160,11 +160,16 @@
   }
 
   function validate(form) {
+    var nameEl = field(form, "name");
     var email = field(form, "email");
     var consent = field(form, "consent");
     clearStatus(form);
     if (email) email.classList.remove("is-invalid");
 
+    if (!nameEl || !(nameEl.value || "").trim()) {
+      showError(form, "Please enter your name.", nameEl);
+      return false;
+    }
     if (!isValidEmail(email && email.value)) {
       showError(form, "Please enter a valid email address.", email);
       return false;

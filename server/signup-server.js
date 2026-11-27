@@ -200,6 +200,8 @@ function parseAndValidate(raw) {
 
   const name = typeof payload.name === "string" ? payload.name.trim() : "";
   if (name.length > MAX_NAME) return { ok: false, status: 400 };
+  // Name is required on /linkedin (the default source); /certification keeps it optional.
+  if (resolveSource(payload) === "linkedin" && !name) return { ok: false, status: 400 };
 
   const landing_path = typeof payload.landing_path === "string" ? payload.landing_path.trim() : "";
   if (landing_path.length > MAX_LANDING) return { ok: false, status: 400 };
