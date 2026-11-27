@@ -55,18 +55,42 @@
 .hero-col-left .hero-copy { padding-block: 0; }
 
 .hero-art {
-  margin: 0 -3.5rem 0 0;
+  margin: 0;
+  position: relative;
+  overflow: visible;
+  background: none;
+}
+/* Radial glow only: no card fill. The pseudo can extend a little past the
+   image; gradients fade to transparent before the wrapper/pseudo edges so
+   nothing reads as a rectangle. */
+.hero-art::before {
+  content: "";
+  position: absolute;
+  inset: -14% -12%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 50% at 53% 47%,
+      rgba(110, 160, 255, 0.38) 0%,
+      rgba(30, 79, 216, 0.50) 16%,
+      rgba(30, 79, 216, 0.28) 34%,
+      rgba(30, 79, 216, 0.10) 50%,
+      transparent 66%),
+    radial-gradient(ellipse 58% 66% at 54% 48%,
+      rgba(30, 79, 216, 0.20) 0%,
+      rgba(30, 79, 216, 0.08) 38%,
+      transparent 60%),
+    radial-gradient(ellipse 34% 56% at 82% 45%,
+      rgba(108, 48, 170, 0.28) 0%,
+      rgba(80, 30, 140, 0.10) 38%,
+      transparent 62%);
 }
 .hero-art img {
   display: block;
   width: 100%;
   height: auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 93%, transparent 100%),
-                      linear-gradient(180deg, transparent 0, #000 7%, #000 90%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 93%, transparent 100%),
-              linear-gradient(180deg, transparent 0, #000 7%, #000 90%, transparent 100%);
-  mask-composite: intersect;
+  position: relative;
+  z-index: 1;
 }
 .hero-col-right .hero-copy-more { padding: 0 1rem 0 2rem; max-width: 40rem; }
 
@@ -470,7 +494,6 @@
   .hero-col-right { gap: 1.25rem; }
   .linkedin-hero .hero-headline { font-size: clamp(1.9rem, 8vw, 2.4rem); }
   .hero-headline .h1-line { display: inline; white-space: normal; }
-  .hero-art { margin: 0 -1.25rem; }
   .hero-col-right .hero-copy-more { padding: 0; }
   .signup-card-hero { max-width: 34rem; }
   .linkedin-hero { padding-top: 1.75rem; }
